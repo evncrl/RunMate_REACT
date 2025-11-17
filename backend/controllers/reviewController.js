@@ -9,9 +9,8 @@ const { cleanComment } = require('../utils/filterService');
 exports.createReview = async (req, res) => {
   // 1. Kunin ang data galing sa frontend at sa user
   const { rating, comment, productId, orderId, itemId } = req.body;
-  const userId = req.user.id; // Ito ay galing sa 'authMiddleware' natin
+  const userId = req.user.id; 
 
-  // 2. I-validate ang data
   if (!mongoose.Types.ObjectId.isValid(productId) || 
       !mongoose.Types.ObjectId.isValid(orderId) || 
       !mongoose.Types.ObjectId.isValid(itemId)) {
@@ -25,8 +24,6 @@ exports.createReview = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // 4. Hanapin ang Order at i-check kung "delivered"
-    // Gagawin din natin 'to para sigurado na 'yung user ang may-ari ng order
     const order = await Order.findOne({ 
       _id: orderId, 
       user: userId, 
@@ -37,7 +34,6 @@ exports.createReview = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Delivered order not found or you are not the owner' });
     }
 
-    // 5. I-check kung 'yung item ay nasa order at kung na-review na
     const itemToReview = order.items.find(item => item._id.toString() === itemId);
 
     if (!itemToReview) {
@@ -48,29 +44,23 @@ exports.createReview = async (req, res) => {
       return res.status(400).json({ success: false, message: 'You have already reviewed this item' });
     }
 
-    // 6. Filter bad words from comment
     const filteredComment = cleanComment(comment);
 
-    // 7. Gawin ang bagong review object
     const review = {
       user: userId,
       rating: Number(rating),
       comment: filteredComment,
     };
 
-    // 8. Idagdag ang review sa Product
     product.reviews.push(review);
     product.numReviews = product.reviews.length;
-    // I-calculate ang average rating
     product.rating = product.reviews.reduce((acc, item) => item.rating + acc, 0) / product.reviews.length;
 
     await product.save();
 
-    // 9. I-marka ang item sa Order bilang "reviewed"
     itemToReview.isReviewed = true;
     await order.save();
 
-    // 10. Magpadala ng success response
     res.status(201).json({ success: true, message: 'Review submitted successfully' });
 
   } catch (error) {

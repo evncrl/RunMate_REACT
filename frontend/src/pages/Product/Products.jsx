@@ -182,10 +182,11 @@ function Products() {
             className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm shadow-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 bg-white"
           >
             <option value="">All Ratings</option>
-            <option value="4">4★ & up</option>
-            <option value="3">3★ & up</option>
-            <option value="2">2★ & up</option>
-            <option value="1">1★ & up</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="2">2 Stars</option>
+            <option value="1">1 Star</option>
           </select>
         </div>
 

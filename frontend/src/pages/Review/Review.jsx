@@ -2,24 +2,21 @@ import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import '../../css/Review.css';
 
-function Review() { // Pinalitan ko na ang pangalan
+function Review() { 
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // 1. Kunin ang info galing sa URL
   const productId = searchParams.get('productId');
   const orderId = searchParams.get('orderId');
   const itemId = searchParams.get('itemId');
 
-  // 2. State para sa form
   const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0); // Para sa star hover effect
+  const [hoverRating, setHoverRating] = useState(0); 
   const [comment, setComment] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // 3. Handle ang pag-submit ng form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (rating === 0) {
@@ -123,4 +120,4 @@ function Review() { // Pinalitan ko na ang pangalan
   );
 }
 
-export default Review; // Pinalitan ko na rin 'to
+export default Review; 

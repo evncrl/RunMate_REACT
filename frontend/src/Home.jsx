@@ -196,10 +196,11 @@ function Home() {
             className="w-full border-gray-300 rounded-lg shadow-sm focus:border-orange-500 focus:ring-orange-500 p-3 text-sm bg-white"
           >
             <option value="">All Ratings</option>
-            <option value="4">4 stars & above</option>
-            <option value="3">3 stars & above</option>
-            <option value="2">2 stars & above</option>
-            <option value="1">1 star & above</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
           </select>
         </div>
 
