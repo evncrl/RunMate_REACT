@@ -80,7 +80,6 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Check if email and password are provided
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -88,7 +87,6 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find user and include password - explicitly select all fields we need
     const user = await User.findOne({ email }).select('+password email name photo isAdmin createdAt');
 
     if (!user || !(await user.comparePassword(password))) {
@@ -101,7 +99,6 @@ exports.login = async (req, res) => {
     // Generate token
     const token = generateToken(user._id);
 
-    // Explicitly get isAdmin value (handle potential undefined)
     const isAdminValue = user.isAdmin === true;
 
     // Log for debugging
@@ -140,7 +137,6 @@ exports.getMe = async (req, res) => {
       });
     }
 
-    // Explicitly get isAdmin value (handle potential undefined)
     const isAdminValue = user.isAdmin === true;
 
     // Log for debugging
@@ -216,12 +212,10 @@ exports.uploadPhoto = async (req, res) => {
 
     let photoUrl;
 
-    // If Cloudinary is configured, upload to Cloudinary
     if (process.env.CLOUDINARY_CLOUD_NAME) {
       const cloudinary = require('../utils/cloudinary').cloudinary;
       const { Readable } = require('stream');
 
-      // Upload to Cloudinary
       const uploadResult = await new Promise((resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
@@ -238,7 +232,6 @@ exports.uploadPhoto = async (req, res) => {
 
       photoUrl = uploadResult.secure_url;
     } else {
-      // Fallback: store as base64 (not recommended for production)
       photoUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     }
 

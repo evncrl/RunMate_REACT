@@ -1,6 +1,5 @@
 let filter = null;
 
-// Initialize filter - call this on server startup
 async function initFilter() {
   if (!filter) {
     try {

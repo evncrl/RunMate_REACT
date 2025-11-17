@@ -34,7 +34,6 @@ const getTransporter = () => {
   return transporter;
 };
 
-// --- Ito 'yung luma mong function ---
 const buildReceiptEmail = (order) => {
   return `
 Thank you for your purchase!
@@ -46,7 +45,6 @@ You can also view this order anytime by logging in to your RunMate account.
 };
 
 async function sendOrderReceipt({ to, order, pdfBuffer }) {
-  // ... (walang binago sa function na 'to) ...
   const mailer = getTransporter();
   const from = process.env.SMTP_FROM || 'RunMate <no-reply@runmate.com>';
 
@@ -153,8 +151,8 @@ Thank you for shopping with us!
       from,
       to,
       subject: `Your RunMate Order Status: ${order.status.toUpperCase()}`,
-      text: emailText, // plain text fallback
-      html: emailHtml  // HTML design
+      text: emailText, 
+      html: emailHtml  
     });
     console.log('Order status HTML email sent successfully via Mailtrap');
   } catch (error) {

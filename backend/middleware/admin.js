@@ -10,13 +10,10 @@ exports.isAdmin = async (req, res, next) => {
       });
     }
 
-    // req.user is already populated by auth middleware
-    // Check isAdmin directly first (faster, no DB query)
     if (req.user.isAdmin === true) {
       return next();
     }
 
-    // If isAdmin is not true, refresh from database to get latest status
     const userId = req.user._id || req.user.id;
     if (!userId) {
       console.error('isAdmin middleware - No user ID found:', req.user);
@@ -49,7 +46,6 @@ exports.isAdmin = async (req, res, next) => {
       });
     }
 
-    // Update req.user with latest isAdmin status
     req.user.isAdmin = user.isAdmin;
     next();
   } catch (error) {

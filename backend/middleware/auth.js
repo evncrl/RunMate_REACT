@@ -1,28 +1,24 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// Protect routes - verify JWT token
 exports.protect = async (req, res, next) => {
-  try {
-    let token;
+  try {
+    let token;
 
-    // Check for token in headers
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized to access this route'
-      });
-    }
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized to access this route'
+      });
+    }
 
-    try {
-      // Verify token
+    try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key-change-in-production');
-      
-      // Get user from token (isAdmin is included by default)
+
       req.user = await User.findById(decoded.id);
 
       if (!req.user) {
@@ -32,7 +28,6 @@ exports.protect = async (req, res, next) => {
         });
       }
 
-      // Log for debugging
       console.log('Auth middleware - User loaded:', {
         email: req.user.email,
         isAdmin: req.user.isAdmin,
@@ -40,23 +35,23 @@ exports.protect = async (req, res, next) => {
       });
 
       next();
-    } catch (error) {
-      return res.status(401).json({
-        success: false,
-        message: 'Not authorized to access this route'
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Server error'
-    });
-  }
+    } catch (error) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authorized to access this route'
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Server error'
+    });
+  }
 };
 
 exports.admin = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
-    next(); 
+    next();
   } else {
     return res.status(403).json({
       success: false,
