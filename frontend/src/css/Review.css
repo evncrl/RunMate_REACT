@@ -1,0 +1,67 @@
+.review-container {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+.review-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+.star-rating {
+  display: flex;
+  font-size: 2.5rem;
+  cursor: pointer;
+}
+.star-rating .star-empty {
+  color: #ccc;
+}
+.star-rating .star-filled {
+  color: #f0c14b;
+}
+.btn-submit-review {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #28a745;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-submit-review:hover {
+  background-color: #218838;
+}
+.btn-submit-review:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+/* ... (yung .error-message at .success-message) ... */
+.error-message {
+  color: #dc3545;
+  margin-bottom: 1rem;
+}
+.success-message {
+  color: #28a745;
+  margin-bottom: 1rem;
+}

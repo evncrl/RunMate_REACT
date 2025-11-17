@@ -1,0 +1,38 @@
+/* Gagamitin para sa review management table */
+
+.table-container {
+  overflow-x: auto; /* Para sa responsive table */
+}
+
+.data-table .comment-column {
+  min-width: 250px; /* Para mas malaki ang space ng comment */
+  max-width: 400px;
+  white-space: normal;
+  line-height: 1.4;
+}
+
+.star-rating-display-admin {
+  font-size: 1.1rem;
+}
+
+.star-rating-display-admin .star-empty {
+  color: #ccc;
+}
+.star-rating-display-admin .star-filled {
+  color: #f0c14b;
+}
+
+/* Gagamitin ulit 'yung delete button style ng AdminDashboard.css */
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+}
