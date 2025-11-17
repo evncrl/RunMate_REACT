@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider, facebookProvider } from '../../firebase';
 
 // Validation schema
 const loginSchema = Yup.object().shape({
@@ -17,7 +19,7 @@ const loginSchema = Yup.object().shape({
 function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, socialLogin } = useAuth();
   const navigate = useNavigate();
 
   const formik = useFormik({
@@ -45,6 +47,30 @@ function Login() {
       }
     }
   });
+
+  const handleSocialLogin = async (provider) => {
+    setError('');
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+
+      const idToken = await result.user.getIdToken();
+
+      const loggedInUser = await socialLogin(idToken);
+
+      if (loggedInUser.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+
+    } catch (err) {
+      const errorMessage = err.message || 'Social sign-in failed. Check console for details.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -123,11 +149,10 @@ function Login() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     placeholder="runner@example.com"
-                    className={`w-full rounded-2xl border px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formik.touched.email && formik.errors.email
-                        ? 'border-red-300 focus:ring-red-400'
-                        : 'border-gray-200'
-                    }`}
+                    className={`w-full rounded-2xl border px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${formik.touched.email && formik.errors.email
+                      ? 'border-red-300 focus:ring-red-400'
+                      : 'border-gray-200'
+                      }`}
                   />
                 </div>
                 {formik.touched.email && formik.errors.email && (
@@ -147,11 +172,10 @@ function Login() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     placeholder="••••••••"
-                    className={`w-full rounded-2xl border px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${
-                      formik.touched.password && formik.errors.password
-                        ? 'border-red-300 focus:ring-red-400'
-                        : 'border-gray-200'
-                    }`}
+                    className={`w-full rounded-2xl border px-4 py-3 text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 ${formik.touched.password && formik.errors.password
+                      ? 'border-red-300 focus:ring-red-400'
+                      : 'border-gray-200'
+                      }`}
                   />
                 </div>
                 {formik.touched.password && formik.errors.password && (
@@ -167,6 +191,41 @@ function Login() {
                 {loading ? 'Logging in...' : 'Login'}
               </button>
             </form>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="bg-white px-2 text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-4">
+                {/* Google Button */}
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin(googleProvider)}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-60"
+                >
+                  <img className="h-5 w-5" src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" />
+                  Sign in with Google
+                </button>
+
+                {/* Facebook Button */}
+                <button
+                  type="button"
+                  onClick={() => handleSocialLogin(facebookProvider)}
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-3 rounded-2xl border border-gray-300 bg-white px-4 py-3 text-base font-semibold text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-60"
+                >
+                  <img className="h-5 w-5" src="https://www.svgrepo.com/show/475647/facebook-color.svg" alt="Facebook" />
+                  Sign in with Facebook
+                </button>
+              </div>
+            </div>
 
             <p className="mt-6 text-center text-sm text-gray-600">
               Don't have an account?{' '}

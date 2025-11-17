@@ -16,12 +16,10 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get token from localStorage
   const getToken = () => {
     return localStorage.getItem('token');
   };
 
-  // Set token in localStorage
   const setToken = (token) => {
     if (token) {
       localStorage.setItem('token', token);
@@ -30,7 +28,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Fetch current user on mount
   useEffect(() => {
     const fetchUser = async () => {
       const token = getToken();
@@ -48,15 +45,14 @@ export const AuthProvider = ({ children }) => {
 
         if (response.ok) {
           const data = await response.json();
-          // Log for debugging
           console.log('fetchUser - Received user data:', data.user);
           console.log('fetchUser - isAdmin value:', data.user.isAdmin, 'Type:', typeof data.user.isAdmin);
-          
+
           const userData = {
             ...data.user,
             isAdmin: data.user.isAdmin === true
           };
-          
+
           console.log('fetchUser - Setting user with isAdmin:', userData.isAdmin);
           setCurrentUser(userData);
         } else {
@@ -89,7 +85,6 @@ export const AuthProvider = ({ children }) => {
     }
 
     setToken(data.token);
-    // Ensure isAdmin is properly set (handle undefined/null)
     setCurrentUser({
       ...data.user,
       isAdmin: data.user.isAdmin === true
@@ -113,13 +108,36 @@ export const AuthProvider = ({ children }) => {
     }
 
     setToken(data.token);
-    // Ensure isAdmin is properly set (handle undefined/null)
     const userData = {
       ...data.user,
       isAdmin: data.user.isAdmin === true
     };
     console.log('Login - Received user data:', data.user);
     console.log('Login - Setting user with isAdmin:', userData.isAdmin);
+    setCurrentUser(userData);
+    return userData;
+  };
+
+  const socialLogin = async (idToken) => {
+    const response = await fetch(`${API_URL}/social-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idToken })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Social sign-in failed on server');
+    }
+
+    setToken(data.token);
+    const userData = {
+      ...data.user,
+      isAdmin: data.user.isAdmin === true
+    };
     setCurrentUser(userData);
     return userData;
   };
@@ -185,6 +203,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     signup,
     login,
+    socialLogin, 
     logout,
     updateUserProfile,
     uploadPhoto,
@@ -198,4 +217,3 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-

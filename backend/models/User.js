@@ -12,9 +12,9 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please provide a password'],
+    required: function () { return !this.isSocial; },
     minlength: 6,
-    select: false // Don't return password by default
+    select: false
   },
   name: {
     type: String,
@@ -28,26 +28,31 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  isSocial: {
+    type: Boolean,
+    default: false
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-// Hash password before saving
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
+  if (!this.password || this.isSocial) return next();
+
   if (!this.isModified('password')) return next();
-  
+
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
 
-// Method to compare password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  if (!this.password) return false;
+
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;
-

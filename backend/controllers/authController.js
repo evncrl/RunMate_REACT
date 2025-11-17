@@ -1,5 +1,24 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
+
+// initialize firebase admin SDK
+const adminConfig = {
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+};
+
+if (adminConfig.projectId && !admin.apps.length) {
+    try {
+        admin.initializeApp({
+            credential: admin.credential.cert(adminConfig),
+        });
+        console.log('Firebase Admin SDK initialized successfully.');
+    } catch (error) {
+        console.error('Error initializing Firebase Admin SDK:', error);
+    }
+}
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -252,3 +271,51 @@ exports.uploadPhoto = async (req, res) => {
   }
 };
 
+// firebase social login
+// @desc    Login/Register user using Firebase ID Token
+// @route   POST /api/auth/social-login
+// @access  Public
+exports.socialLogin = async (req, res) => {
+  const { idToken } = req.body;
+  if (!idToken) {
+    return res.status(400).json({ success: false, message: 'ID Token required' });
+  }
+
+  try {
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    const firebaseUser = decodedToken;
+
+    let user = await User.findOne({ email: firebaseUser.email });
+
+    if (!user) {
+      user = await User.create({
+        email: firebaseUser.email,
+        name: firebaseUser.name || firebaseUser.email.split('@')[0],
+        photo: firebaseUser.picture,
+        isSocial: true, 
+        isVerified: true 
+      });
+    }
+
+    const token = generateToken(user._id);
+
+    user.password = undefined; 
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        photo: user.photo,
+        displayName: user.name,
+        photoURL: user.photo,
+        isAdmin: user.isAdmin
+      }
+    });
+
+  } catch (error) {
+    console.error('Firebase token verification failed:', error);
+    res.status(401).json({ success: false, message: 'Authentication failed. Invalid token or server error.' });
+  }
+};
