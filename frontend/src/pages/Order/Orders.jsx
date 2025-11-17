@@ -104,6 +104,7 @@ function Orders() {
 
   return (
     <div className="orders-container">
+      <Link to="/" className="page-back-link">← Back to Home</Link>
       <div className="orders-header">
         <h1>My Orders</h1>
         <Link to="/orders/new" className="btn-primary">

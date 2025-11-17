@@ -168,7 +168,7 @@ function AdminProducts() {
                   {bulkDeleting ? 'Deleting...' : `Delete Selected (${selectedProducts.length})`}
                 </button>
               )}
-              <Link to="/products/new" className="btn-create">
+              <Link to="/admin/products/new" className="btn-create">
                 + Create Product
               </Link>
             </div>
@@ -261,7 +261,7 @@ function AdminProducts() {
                         <td>{product.createdBy?.name || product.createdBy?.email || 'N/A'}</td>
                         <td>
                           <Link
-                            to={`/products/${product._id}/edit`}
+                            to={`/admin/products/${product._id}/edit`}
                             className="btn-edit"
                           >
                             Edit

@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from './context/AuthContext';
-import { useCart } from './context/CartContext';
-import CartIcon from './components/CartIcon';
+// TINANGGAL ANG: useAuth
+import { useCart } from './context/CartContext'; // Iniwan 'to para sa "Add to Cart"
+// TINANGGAL ANG: CartIcon
 import './css/Home.css';
 
 const API_URL = 'http://localhost:5000/api/products';
 
 function Home() {
-  const { currentUser } = useAuth();
+  // TINANGGAL ANG: const { currentUser } = useAuth();
   const { addToCart, getCartItem } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,33 +98,11 @@ function Home() {
 
   return (
     <div className="home-container">
-      <header className="home-header">
-        <div className="home-nav">
-          <Link to="/" className="home-logo">RunMate</Link>
-          <div className="home-nav-links">
-            <Link to="/products" className="nav-link">Products</Link>
-            {currentUser ? (
-              <>
-              <Link to="/orders" className="nav-link">My Orders</Link>
-                <Link to="/profile" className="nav-link">Profile</Link>
-                {currentUser.isAdmin && (
-                  <Link to="/admin" className="nav-link">Admin</Link>
-                )}
-              </>
-            ) : (
-              <>
-                <Link to="/login" className="nav-link">Login</Link>
-                <Link to="/signup" className="nav-link">Sign Up</Link>
-              </>
-            )}
-            <CartIcon />
-          </div>
-        </div>
-        <div className="home-header-content">
-          <h1 className="home-title">Welcome to RunMate</h1>
-          <p className="home-subtitle">Discover amazing products for your active lifestyle</p>
-        </div>
-      </header>
+      <div className="home-header-content">
+        <h1 className="home-title">Welcome to RunMate!!</h1>
+        <h3 className="home-tagline">Your Ultimate Running Companion</h3>
+        <p className="home-subtitle">Takbo Hanggang ma-Tegi!</p>
+      </div>
 
       <div className="home-content">
         <div className="home-filters">

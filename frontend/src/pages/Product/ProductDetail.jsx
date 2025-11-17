@@ -41,7 +41,7 @@ function ProductDetail() {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`${API_URL}/${id}`); 
+      const response = await fetch(`${API_URL}/${id}`);
       const data = await response.json();
       if (data.success) {
         setProduct(data.product);
@@ -97,8 +97,8 @@ function ProductDetail() {
         setProduct(prevProduct => ({
           ...prevProduct,
           reviews: prevProduct.reviews.filter(r => r._id !== reviewId),
-          numReviews: data.numReviews, 
-          rating: data.rating          
+          numReviews: data.numReviews,
+          rating: data.rating
         }));
         alert('Review deleted successfully');
       } else {
@@ -157,8 +157,8 @@ function ProductDetail() {
       if (data.success) {
         setProduct(prevProduct => ({
           ...prevProduct,
-          reviews: prevProduct.reviews.map(r => 
-            r._id === reviewId 
+          reviews: prevProduct.reviews.map(r =>
+            r._id === reviewId
               ? { ...r, rating: data.review.rating, comment: data.review.comment, createdAt: data.review.createdAt }
               : r
           ),
@@ -192,73 +192,73 @@ function ProductDetail() {
 
   return (
     <div className="product-detail-container">
-      <Link to="/products" className="back-link">← Back to Products</Link>
+      <Link to="/" className="page-back-link">← Back to Home</Link>
 
       <div className="product-detail">
         <div className="product-images">
           {/* ... (image gallery code) ... */}
-          {product.photos && product.photos.length > 0 ? (
-            <div className="main-image">
-              <img src={product.photos[0]} alt={product.name} />
-            </div>
-          ) : (
-            <div className="main-image no-image">No Image</div>
-          )}
-          {product.photos && product.photos.length > 1 && (
-            <div className="thumbnail-images">
-              {product.photos.map((photo, index) => (
-                <img key={index} src={photo} alt={`${product.name} ${index + 1}`} />
-              ))}
-            </div>
-          )}
+          {product.photos && product.photos.length > 0 ? (
+            <div className="main-image">
+              <img src={product.photos[0]} alt={product.name} />
+            </div>
+          ) : (
+            <div className="main-image no-image">No Image</div>
+          )}
+          {product.photos && product.photos.length > 1 && (
+            <div className="thumbnail-images">
+              {product.photos.map((photo, index) => (
+                <img key={index} src={photo} alt={`${product.name} ${index + 1}`} />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="product-info">
           <h1>{product.name}</h1>
-          
+
           <div className="product-rating-summary">
             <StarRatingDisplay rating={product.rating} />
             <span>({product.numReviews} review{product.numReviews !== 1 ? 's' : ''})</span>
           </div>
-          
+
           <p className="product-category">Category: {product.category}</p>
           <p className="product-description">{product.description}</p>
-          
+
           <div className="product-pricing">
             <span className="product-price">${product.price}</span>
             <span className="product-stock">Stock: {product.stock}</span>
           </div>
 
           {/* ... (owner actions at purchase section) ... */}
-          {currentUser && currentUser.id === product.createdBy?._id && (
-            <div className="owner-actions">
-              <Link to={`/products/${product._id}/edit`} className="btn-edit">
-                Edit Product
-              </Link>
-            </div>
-          )}
+          {currentUser && currentUser.id === product.createdBy?._id && (
+            <div className="owner-actions">
+              <Link to={`/products/${product._id}/edit`} className="btn-edit">
+                Edit Product
+              </Link>
+            </div>
+          )}
 
-          {(!currentUser || (currentUser && currentUser.id !== product.createdBy?._id)) && (
-            <div className="purchase-section">
-              <div className="quantity-selector">
-                <label>Quantity:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max={product.stock}
-                  value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
-                />
-              </div>
-              <button
-                onClick={handleAddToCart}
-                disabled={product.stock === 0}
-                className="btn-add-to-cart"
-              >
-                {addedToCart ? 'Added to Cart!' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </button>
-            </div>
-          )}
+          {(!currentUser || (currentUser && currentUser.id !== product.createdBy?._id)) && (
+            <div className="purchase-section">
+              <div className="quantity-selector">
+                <label>Quantity:</label>
+                <input
+                  type="number"
+                  min="1"
+                  max={product.stock}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Math.max(1, Math.min(product.stock, parseInt(e.target.value) || 1)))}
+                />
+              </div>
+              <button
+                onClick={handleAddToCart}
+                disabled={product.stock === 0}
+                className="btn-add-to-cart"
+              >
+                {addedToCart ? 'Added to Cart!' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -298,13 +298,13 @@ function ProductDetail() {
                       />
                     </div>
                     <div className="review-edit-actions">
-                      <button 
+                      <button
                         className="btn-save-review"
                         onClick={() => handleUpdateReview(review._id)}
                       >
                         Save
                       </button>
-                      <button 
+                      <button
                         className="btn-cancel-review"
                         onClick={handleCancelEdit}
                       >
@@ -323,19 +323,19 @@ function ProductDetail() {
                     </div>
                     <StarRatingDisplay rating={review.rating} />
                     <p className="review-comment">{review.comment}</p>
-                    
+
                     {/* --- EDIT/DELETE REVIEW BUTTONS --- */}
                     {currentUser && (isReviewOwner(review) || currentUser.isAdmin) && (
                       <div className="review-actions">
                         {isReviewOwner(review) && (
-                          <button 
+                          <button
                             className="btn-edit-review"
                             onClick={() => handleEditReview(review)}
                           >
                             Edit Review
                           </button>
                         )}
-                        <button 
+                        <button
                           className="btn-delete-review"
                           onClick={() => handleDeleteReview(review._id)}
                         >
@@ -352,7 +352,7 @@ function ProductDetail() {
           <p>No reviews for this product yet.</p>
         )}
       </div>
-      
+
     </div>
   );
 }

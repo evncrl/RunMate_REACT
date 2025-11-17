@@ -30,6 +30,7 @@ function Cart() {
   if (cartItems.length === 0) {
     return (
       <div className="cart-container">
+        <Link to="/" className="page-back-link">← Back to Home</Link>
         <div className="cart-empty">
           <h2>Your cart is empty</h2>
           <p>Add some products to get started!</p>
@@ -45,6 +46,7 @@ function Cart() {
 
   return (
     <div className="cart-container">
+      <Link to="/" className="page-back-link">← Back to Home</Link>
       <div className="cart-header">
         <h1>Shopping Cart</h1>
         <button onClick={clearCart} className="btn-clear-cart">

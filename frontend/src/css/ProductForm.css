@@ -155,3 +155,30 @@
   }
 }
 
+
+.admin-back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  
+  background-color: #f0f0f0; 
+  color: #333;               
+  border: 1px solid #ccc;    
+  padding: 8px 12px;          
+  border-radius: 5px;         
+  text-decoration: none;      
+  transition: background-color 0.2s;
+}
+
+.admin-back-link:hover {
+  background-color: #e0e0e0; 
+  text-decoration: none;
+}
+
+.product-form-container {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}

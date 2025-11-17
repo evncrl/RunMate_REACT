@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
-import CartIcon from '../../components/CartIcon';
 import '../../css/Products.css';
 
 const API_URL = 'http://localhost:5000/api/products';
@@ -87,17 +86,18 @@ function Products() {
 
   return (
     <div className="products-container">
+      <Link to="/" className="page-back-link">← Back to Home</Link>
       <div className="products-header">
         <h1>Products</h1>
         <div className="products-header-actions">
-          <CartIcon />
-          {currentUser && (
-            <Link to="/products/new" className="btn-primary">
+          {currentUser && currentUser.isAdmin && (
+            <Link to="/admin/products/new" className="btn-primary">
               Add New Product
             </Link>
           )}
         </div>
       </div>
+
 
       <div className="products-filters">
         <input
@@ -137,7 +137,7 @@ function Products() {
             setPage(1);
           }}
           className="search-input"
-        />
+          _ />
         <input
           type="number"
           min="0"
@@ -201,9 +201,9 @@ function Products() {
                     {getCartItem(product._id) ? 'In Cart' : 'Add to Cart'}
                   </button>
                 )}
-                {currentUser && currentUser.id === product.createdBy?._id && (
+                {currentUser && currentUser.isAdmin && (
                   <>
-                    <Link to={`/products/${product._id}/edit`} className="btn-edit">
+                    <Link to={`/admin/products/${product._id}/edit`} className="btn-edit">
                       Edit
                     </Link>
                     <button
@@ -246,4 +246,3 @@ function Products() {
 }
 
 export default Products;
-

@@ -340,3 +340,54 @@
   }
 }
 
+.logo-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-logo {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.tagline {
+  font-size: 0.8rem;
+  color: #666; 
+  margin: 0; 
+  margin-top: -5px; 
+}
+
+.promo-bar {
+  background-color: #333; 
+  color: white;
+  text-align: center;
+  padding: 8px 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+
+
+.page-back-link {
+  display: inline-block; 
+  margin: 1.5rem 2rem 0 2rem; 
+  
+  background-color: #ffffff;   
+  border: 1px solid #e0e0e0;    
+  padding: 10px 16px;           
+  border-radius: 8px;         
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;                 
+  text-decoration: none;        
+  transition: all 0.2s ease;
+}
+
+.page-back-link:hover {
+  background-color: #f9f9f9; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transform: translateY(-1px); /* Konting angat */
+  text-decoration: none;
+}

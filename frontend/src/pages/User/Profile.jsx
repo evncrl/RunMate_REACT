@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -114,6 +114,7 @@ function Profile() {
 
   return (
     <div className="profile-container">
+      <Link to="/" className="page-back-link">← Back to Home</Link>
       <div className="profile-card">
         <h2>Profile</h2>
         

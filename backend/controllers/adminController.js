@@ -1,69 +1,70 @@
 const User = require('../models/User');
 const Product = require('../models/Product');
 const Order = require('../models/Order');
+const { sendOrderStatusUpdate } = require('../utils/emailService');
 
 // Get dashboard statistics
 exports.getDashboardStats = async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalProducts = await Product.countDocuments();
-    const totalOrders = await Order.countDocuments();
-    
-    const totalRevenue = await Order.aggregate([
-      {
-        $match: { paymentStatus: 'paid' }
-      },
-      {
-        $group: {
-          _id: null,
-          total: { $sum: '$totalAmount' }
-        }
-      }
-    ]);
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalProducts = await Product.countDocuments();
+    const totalOrders = await Order.countDocuments();
 
-    const revenue = totalRevenue.length > 0 ? totalRevenue[0].total : 0;
+    const totalRevenue = await Order.aggregate([
+      {
+        $match: { paymentStatus: 'paid' }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: '$totalAmount' }
+        }
+      }
+    ]);
 
-    const ordersByStatus = await Order.aggregate([
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 }
-        }
-      }
-    ]);
+    const revenue = totalRevenue.length > 0 ? totalRevenue[0].total : 0;
 
-    const recentOrders = await Order.find()
-      .populate('user', 'name email')
-      .populate('items.product', 'name')
-      .sort({ createdAt: -1 })
-      .limit(10);
+    const ordersByStatus = await Order.aggregate([
+      {
+        $group: {
+          _id: '$status',
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
-    const recentUsers = await User.find()
-      .select('name email createdAt')
-      .sort({ createdAt: -1 })
-      .limit(10);
+    const recentOrders = await Order.find()
+      .populate('user', 'name email')
+      .populate('items.product', 'name')
+      .sort({ createdAt: -1 })
+      .limit(10);
 
-    res.status(200).json({
-      success: true,
-      stats: {
-        totalUsers,
-        totalProducts,
-        totalOrders,
-        totalRevenue: revenue,
-        ordersByStatus: ordersByStatus.reduce((acc, item) => {
-          acc[item._id] = item.count;
-          return acc;
-        }, {})
-      },
-      recentOrders,
-      recentUsers
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error fetching dashboard stats'
-    });
-  }
+    const recentUsers = await User.find()
+      .select('name email createdAt')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalUsers,
+        totalProducts,
+        totalOrders,
+        totalRevenue: revenue,
+        ordersByStatus: ordersByStatus.reduce((acc, item) => {
+          acc[item._id] = item.count;
+          return acc;
+        }, {})
+      },
+      recentOrders,
+      recentUsers
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error fetching dashboard stats'
+    });
+  }
 };
 
 // Get all users (admin only)
@@ -89,7 +90,7 @@ exports.getAllUsers = async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    const total = await User.countDocuments(query);
+    const total = await User.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -111,205 +112,216 @@ exports.getAllUsers = async (req, res) => {
 
 // Update user (admin only)
 exports.updateUser = async (req, res) => {
-  try {
-    const { name, email, isAdmin } = req.body;
-    const updateData = {};
+  try {
+    const { name, email, isAdmin } = req.body;
+    const updateData = {};
 
-    if (name !== undefined) updateData.name = name;
-    if (email !== undefined) updateData.email = email;
-    if (isAdmin !== undefined) updateData.isAdmin = isAdmin;
+    if (name !== undefined) updateData.name = name;
+    if (email !== undefined) updateData.email = email;
+    if (isAdmin !== undefined) updateData.isAdmin = isAdmin;
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-        runValidators: true
-      }
-    ).select('-password');
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true
+      }
+    ).select('-password');
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    res.status(200).json({
-      success: true,
-      user: {
-        id: user._id,
-        email: user.email,
-        name: user.name,
-        photo: user.photo,
-        displayName: user.name,
-        photoURL: user.photo,
-        isAdmin: user.isAdmin
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error updating user'
-    });
-  }
+    res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        photo: user.photo,
+        displayName: user.name,
+        photoURL: user.photo,
+        isAdmin: user.isAdmin
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error updating user'
+    });
+  }
 };
 
 // Delete user (admin only)
 exports.deleteUser = async (req, res) => {
-  try {
-    if (req.params.id === req.user.id) {
-      return res.status(400).json({
-        success: false,
-        message: 'Cannot delete your own account'
-      });
-    }
+  try {
+    if (req.params.id === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete your own account'
+      });
+    }
 
-    const user = await User.findByIdAndDelete(req.params.id);
+    const user = await User.findByIdAndDelete(req.params.id);
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
 
-    res.status(200).json({
-      success: true,
-      message: 'User deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error deleting user'
-    });
-  }
+    res.status(200).json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error deleting user'
+    });
+  }
 };
 
 // Get all orders (admin only)
 exports.getAllOrdersAdmin = async (req, res) => {
-  try {
-    const { status, page = 1, limit = 10 } = req.query;
-    const query = {};
+  try {
+    const { status, page = 1, limit = 10 } = req.query;
+    const query = {};
 
-    if (status) {
-      query.status = status;
-    }
+    if (status) {
+      query.status = status;
+    }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const orders = await Order.find(query)
-      .populate('user', 'name email')
-      .populate('items.product', 'name photos price')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    const orders = await Order.find(query)
+      .populate('user', 'name email')
+      .populate('items.product', 'name photos price')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
-    const total = await Order.countDocuments(query);
+    const total = await Order.countDocuments(query);
 
-    res.status(200).json({
-      success: true,
-      count: orders.length,
-      total,
-      page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit)),
-      orders
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error fetching orders'
-    });
-  }
+    res.status(200).json({
+      success: true,
+      count: orders.length,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+      orders
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error fetching orders'
+    });
+  }
 };
 
 // Update order status (admin only)
 exports.updateOrderStatus = async (req, res) => {
-  try {
-    const { status, paymentStatus } = req.body;
-    const order = await Order.findById(req.params.id);
+  try {
+    const { status, paymentStatus } = req.body;
+    const order = await Order.findById(req.params.id);
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: 'Order not found'
-      });
-    }
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
 
-    const updateData = {};
+    const updateData = {};
 
-    if (status) {
-      updateData.status = status;
-    }
+    if (status) {
+      updateData.status = status;
+    }
 
-    if (paymentStatus) {
-      updateData.paymentStatus = paymentStatus;
-    }
+    if (paymentStatus) {
+      updateData.paymentStatus = paymentStatus;
+    }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      {
-        new: true,
-        runValidators: true
-      }
-    )
-      .populate('user', 'name email')
-      .populate('items.product', 'name photos price');
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      {
+        new: true,
+        runValidators: true
+      }
+    )
+      .populate('user', 'name email')
+      .populate('items.product', 'name photos price');
 
-    res.status(200).json({
-      success: true,
-      order: updatedOrder
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error updating order status'
-    });
-  }
+    if (status) {
+      try {
+        await sendOrderStatusUpdate({
+          to: updatedOrder.user.email,
+          order: updatedOrder
+        });
+      } catch (emailError) {
+        console.error('Failed to send order update email:', emailError);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      order: updatedOrder
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error updating order status'
+    });
+  }
 };
 
 // Get all products (admin only - with all details)
 exports.getAllProductsAdmin = async (req, res) => {
-  try {
-    const { category, search, page = 1, limit = 10 } = req.query;
-    const query = {};
+  try {
+    const { category, search, page = 1, limit = 10 } = req.query;
+    const query = {};
 
-    if (category) {
-      query.category = category;
-    }
+    if (category) {
+      query.category = category;
+    }
 
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ];
-    }
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const products = await Product.find(query)
-      .populate('createdBy', 'name email')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    const products = await Product.find(query)
+      .populate('createdBy', 'name email')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit));
 
-    const total = await Product.countDocuments(query);
+    const total = await Product.countDocuments(query);
 
-    res.status(200).json({
-      success: true,
-      count: products.length,
-      total,
-      page: parseInt(page),
-      pages: Math.ceil(total / parseInt(limit)),
-      products
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || 'Error fetching products'
-    });
-  }
+    res.status(200).json({
+      success: true,
+      count: products.length,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / parseInt(limit)),
+      products
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Error fetching products'
+    });
+  }
 };
 
 // Get all reviews (admin only)
@@ -317,9 +329,9 @@ exports.getAllReviews = async (req, res) => {
   try {
     const reviews = await Product.aggregate([
       { $match: { reviews: { $exists: true, $ne: [] } } },
-      
+
       { $unwind: '$reviews' },
-      
+
       {
         $project: {
           _id: '$reviews._id', // Review ID
@@ -331,7 +343,7 @@ exports.getAllReviews = async (req, res) => {
           productName: '$name'
         }
       },
-      
+
       {
         $lookup: {
           from: 'users', // Pangalan ng collection
@@ -340,9 +352,9 @@ exports.getAllReviews = async (req, res) => {
           as: 'user'
         }
       },
-      
+
       { $unwind: '$user' },
-      
+
       {
         $project: {
           _id: 1,
@@ -351,10 +363,10 @@ exports.getAllReviews = async (req, res) => {
           createdAt: 1,
           productId: 1,
           productName: 1,
-          user: { name: '$user.name', email: '$user.email' } 
+          user: { name: '$user.name', email: '$user.email' }
         }
       },
-      
+
       { $sort: { createdAt: -1 } }
     ]);
 
